@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LaWAM: Latent World Action Models</title>
+    <meta
+      name="description"
+      content="LaWAM predicts compact latent visual subgoals for efficient dynamics-aware robot policies, avoiding expensive pixel-space video generation."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top">LaWAM</a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#video">Video</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <img
+          class="hero-media"
+          src="assets/frames/latent_future.jpg"
+          alt="Real robot comparison frame showing latent future inference."
+        >
+        <div class="hero-scrim" aria-hidden="true"></div>
+        <div class="hero-content">
+          <p class="venue">Robot learning project</p>
+          <h1 id="hero-title">LaWAM: Latent World Action Models for Efficient Dynamics-Aware Robot Policies</h1>
+          <p class="hero-subtitle">
+            LaWAM gives robot policies physical foresight by predicting compact latent visual subgoals, not future
+            pixels.
+          </p>
+          <p class="authors">
+            <a href="https://nemo-1024.github.io/" target="_blank" rel="noreferrer">Jialei Chen</a>, Kai Wang,
+            Kang Chen, Shuaihang Chen, Feng Gao, Wenhao Tang, Zhiyuan Li, Weilin Liu, Zhuyu Yao, Boxun Li,
+            <a href="https://micxyb.github.io/" target="_blank" rel="noreferrer">Yuanbo Xu<sup>&dagger;</sup></a>,
+            <a href="https://zoeyuchao.github.io/" target="_blank" rel="noreferrer">Chao Yu<sup>&dagger;</sup></a>
+          </p>
+          <div class="actions" aria-label="Project links">
+            <a class="button" href="" aria-label="Paper link placeholder">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 2h8l5 5v15H6V2Zm8 1.8V8h4.2L14 3.8ZM8 12h8v1.6H8V12Zm0 4h8v1.6H8V16Zm0-8h4v1.6H8V8Z"/>
+              </svg>
+              <span>Paper</span>
+            </a>
+            <a class="button" href="https://github.com/Nemo-1024/LaWAM" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.23.48-2.7-.95-2.7-.95-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.64 7.64 0 0 1 8 3.86c.68 0 1.36.09 1.99.26 1.52-1.03 2.19-.82 2.19-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.21c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+              </svg>
+              <span>Code</span>
+            </a>
+            <a class="button" href="https://huggingface.co/collections/jialei02/lawam-checkpoints" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 5.5 12 2l7 3.5v7c0 4.2-2.8 7.7-7 9.5-4.2-1.8-7-5.3-7-9.5v-7Zm2 1.2v5.8c0 3.2 1.9 5.8 5 7.3 3.1-1.5 5-4.1 5-7.3V6.7l-5-2.5-5 2.5Zm4 2.3h2v2.4h2.4v2H13v2.4h-2v-2.4H8.6v-2H11V9Z"/>
+              </svg>
+              <span>Checkpoints</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="metric-band" aria-label="Headline metrics">
+        <div>
+          <strong>98.6%</strong>
+          <span>LIBERO average SR</span>
+        </div>
+        <div>
+          <strong>91.22%</strong>
+          <span>RoboTwin average SR</span>
+        </div>
+        <div>
+          <strong>187 ms</strong>
+          <span>per action chunk</span>
+        </div>
+        <div>
+          <strong>24x</strong>
+          <span>lower latency vs pixel WAMs</span>
+        </div>
+      </section>
+
+      <section class="section intro-grid" id="overview">
+        <div class="section-copy">
+          <p class="eyebrow">Why Latent Futures</p>
+          <h2>Video imagination slows robot control.</h2>
+          <p>
+            Pixel-space world-action models can provide foresight, but they spend latency and model capacity on
+            reconstructing visual detail. LaWAM moves future prediction into a frozen visual feature space, where a
+            single latent subgoal captures the scene change needed for the next action chunk.
+          </p>
+        </div>
+        <div class="comparison-panel" aria-label="Pixel futures versus latent subgoals">
+          <article>
+            <span>Pixel WAM</span>
+            <strong>Iterative video generation</strong>
+            <p>Dense future frames add redundant appearance modeling before the robot can act.</p>
+          </article>
+          <article>
+            <span>LaWAM</span>
+            <strong>One latent subgoal</strong>
+            <p>A compact future feature directly conditions action generation in one forward pass.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section method-section" id="method">
+        <div class="section-heading">
+          <p class="eyebrow">Method</p>
+          <h2>Predict a latent subgoal, then act toward it.</h2>
+          <p>
+            LaWAM repurposes a latent action model decoder as a Latent World Model, then inserts the predicted
+            future feature into a VLA action expert.
+          </p>
+        </div>
+
+        <figure class="wide-figure">
+          <img src="assets/figures/lawam_overview.png" alt="Two-stage LaWAM pipeline overview.">
+          <figcaption>
+            Stage 1 learns LaWM from visual transitions. Stage 2 trains the policy to infer latent actions, decode
+            latent visual subgoals, and generate subgoal-conditioned action chunks.
+          </figcaption>
+        </figure>
+
+        <div class="process-grid" aria-label="LaWAM training and inference stages">
+          <article>
+            <span>01</span>
+            <h3>Learn LaWM</h3>
+            <p>Encode current and horizon observations with a frozen visual encoder, infer latent actions, and train a decoder to predict future features.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Distill subgoals</h3>
+            <p>Teach the policy prior to predict latent actions that drive LaWM toward teacher latent subgoals from robot trajectories.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Generate actions</h3>
+            <p>At test time, one latent world-model pass produces the subgoal used by the action expert for chunk-level control.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section video-section" id="video">
+        <div class="section-heading compact">
+          <p class="eyebrow">Three-Minute Overview</p>
+          <h2>Watch the LaWAM project video.</h2>
+        </div>
+        <div class="video-shell">
+          <video controls preload="metadata" poster="assets/frames/hero_poster.jpg">
+            <source src="assets/lawam_overview_video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </section>
+
+      <section class="section results-section" id="results">
+        <div class="section-heading">
+          <p class="eyebrow">Results</p>
+          <h2>High success with low-latency latent prediction.</h2>
+          <p>
+            Across simulated and physical manipulation tasks, LaWAM keeps the predictive benefits of world-action
+            modeling while avoiding the cost of pixel-space rollouts.
+          </p>
+        </div>
+
+        <div class="result-layout">
+          <figure class="result-figure">
+            <img src="assets/figures/libero_latency.png" alt="LIBERO latency and success trade-off chart.">
+            <figcaption>LIBERO latency-success trade-off for 10 denoising steps.</figcaption>
+          </figure>
+
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <caption>LIBERO Benchmark</caption>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Model</th>
+                  <th>Latency</th>
+                  <th>Avg. SR</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>pi0.5</td>
+                  <td>3.5B</td>
+                  <td>220 ms</td>
+                  <td>96.9</td>
+                </tr>
+                <tr>
+                  <td>Cosmos-Policy</td>
+                  <td>2.1B</td>
+                  <td>1413 ms</td>
+                  <td>98.5</td>
+                </tr>
+                <tr>
+                  <td>LingBot-VA</td>
+                  <td>5.5B</td>
+                  <td>4482 ms</td>
+                  <td>98.5</td>
+                </tr>
+                <tr class="highlight-row">
+                  <td>LaWAM</td>
+                  <td>2.3B</td>
+                  <td>187 ms</td>
+                  <td>98.6</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="benchmark-grid">
+          <article class="benchmark-card">
+            <h3>RoboTwin</h3>
+            <p>Strong bimanual generalization over 50 manipulation tasks with 100 trials per task.</p>
+            <div class="mini-bars" aria-label="RoboTwin average success rates">
+              <div><span>Clean</span><strong>92.64</strong></div>
+              <div><span>Randomized</span><strong>89.80</strong></div>
+            </div>
+          </article>
+          <article class="benchmark-card">
+            <h3>Real-World Transfer</h3>
+            <p>First across pick-and-place, drawer opening, and towel folding in 30 physical trials per task.</p>
+            <div class="mini-bars" aria-label="Real world success rates">
+              <div><span>Pick-place</span><strong>93.3</strong></div>
+              <div><span>Drawer</span><strong>86.7</strong></div>
+              <div><span>Towel</span><strong>90.0</strong></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="visual-pair">
+          <figure>
+            <img src="assets/figures/libero_chunk.png" alt="LIBERO chunk execution with latent subgoal heatmaps.">
+            <figcaption>Subgoal-guided chunk execution on LIBERO.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/figures/real_world_rollouts.png" alt="Representative real-world robot rollouts.">
+            <figcaption>Representative real-world rollouts across two robot platforms.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section dynamics-section" id="dynamics">
+        <div class="section-heading">
+          <p class="eyebrow">Dynamics Analysis</p>
+          <h2>Shared latent transitions ground across embodiments.</h2>
+          <p>
+            Applying the same latent action trajectory to different initial observations produces context-specific
+            latent rollouts, suggesting that LaWM grounds abstract transitions in the current embodiment and scene.
+          </p>
+        </div>
+        <div class="dynamics-grid">
+          <figure>
+            <img src="assets/figures/lawm_dynamics.png" alt="Cross-embodiment open-loop LaWM rollouts.">
+            <figcaption>Open-loop LaWM rollouts from shared latent actions across embodiments.</figcaption>
+          </figure>
+          <figure>
+            <video
+              class="embedded-demo"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              poster="assets/frames/real_world_video.jpg"
+              aria-label="Real-world LaWAM inference video with RGB execution, subgoal heatmaps, and latent PCA."
+            >
+              <source src="assets/real_world_inference.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <figcaption>Real-world inference video from the project slides.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section citation-section" id="citation">
+        <div class="section-heading compact">
+          <p class="eyebrow">Citation</p>
+          <h2>Paper link coming soon.</h2>
+        </div>
+        <pre class="bibtex"><code>@misc{chen2026lawam,
+  title  = {LaWAM: Latent World Action Models for Efficient Dynamics-Aware Robot Policies},
+  author = {Chen, Jialei and Wang, Kai and Chen, Kang and Chen, Shuaihang and Gao, Feng and Tang, Wenhao and Li, Zhiyuan and Liu, Weilin and Yao, Zhuyu and Li, Boxun and Xu, Yuanbo and Yu, Chao},
+  year   = {2026},
+  note   = {Manuscript in preparation}
+}</code></pre>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>LaWAM</span>
+      <span>Latent visual subgoals for dynamics-aware robot policies.</span>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
