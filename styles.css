@@ -11,6 +11,9 @@
   --gold: #c49a3b;
   --violet: #6d5ea8;
   --shadow: 0 20px 50px rgba(23, 25, 31, 0.12);
+  --content-max: 1320px;
+  --media-max: 1240px;
+  --demo-max: 960px;
 }
 
 * {
@@ -112,7 +115,7 @@ a {
 
 .hero-content {
   position: relative;
-  width: min(980px, calc(100% - 64px));
+  width: min(var(--content-max), calc(100% - 64px));
   margin: 0 auto;
   padding: 136px 0 76px;
 }
@@ -127,7 +130,7 @@ a {
 }
 
 .hero h1 {
-  max-width: 900px;
+  max-width: var(--content-max);
   margin: 0;
   font-size: 4rem;
   line-height: 1.02;
@@ -135,14 +138,14 @@ a {
 }
 
 .hero-subtitle {
-  max-width: 690px;
+  max-width: var(--content-max);
   margin: 24px 0 0;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.25rem;
 }
 
 .authors {
-  max-width: 900px;
+  max-width: var(--content-max);
   margin: 22px 0 0;
   color: rgba(255, 255, 255, 0.78);
   font-size: 0.96rem;
@@ -201,26 +204,33 @@ a {
 }
 
 .metric-band {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--line);
+  padding: 0 44px;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
-.metric-band div {
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  width: min(var(--content-max), 100%);
+  margin: 0 auto;
+  background: var(--line);
+}
+
+.metric-grid div {
   padding: 28px 32px;
   background: var(--surface);
 }
 
-.metric-band strong {
+.metric-grid strong {
   display: block;
   color: var(--teal-dark);
   font-size: 2.2rem;
   line-height: 1;
 }
 
-.metric-band span {
+.metric-grid span {
   display: block;
   margin-top: 8px;
   color: var(--muted);
@@ -228,7 +238,7 @@ a {
 }
 
 .section {
-  padding: 86px 44px;
+  padding: 78px 44px;
 }
 
 .section-copy,
@@ -237,12 +247,12 @@ a {
 .video-shell,
 .result-layout,
 .benchmark-grid,
-.visual-pair,
+.qualitative-showcase,
 .dynamics-grid,
 .resource-grid,
 .citation-section .section-heading,
 .bibtex {
-  width: min(1320px, 100%);
+  width: min(var(--content-max), 100%);
   margin-left: auto;
   margin-right: auto;
 }
@@ -258,10 +268,17 @@ a {
 
 .wide-figure,
 .video-shell,
-.result-layout,
-.visual-pair,
 .dynamics-grid {
-  width: min(1440px, 100%);
+  width: min(var(--media-max), 100%);
+}
+
+.wide-figure {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.video-shell {
+  width: min(1120px, 100%);
 }
 
 .section-heading.compact {
@@ -284,10 +301,10 @@ a {
 
 .intro-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
-  align-items: stretch;
-  gap: 36px;
-  width: min(1210px, 100%);
+  grid-template-columns: minmax(420px, 0.92fr) minmax(560px, 1.08fr);
+  align-items: center;
+  gap: 56px;
+  width: min(var(--content-max), 100%);
   margin: 0 auto;
 }
 
@@ -353,17 +370,15 @@ a {
   background: var(--surface);
 }
 
-.wide-figure,
 .result-figure,
-.visual-pair figure,
+.media-figure,
 .dynamics-grid figure {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .wide-figure img,
 .result-figure img,
-.visual-pair img,
+.media-figure img,
 .dynamics-grid img,
 .embedded-demo {
   width: 100%;
@@ -379,8 +394,8 @@ figcaption {
 }
 
 .process-grid {
-  width: min(1120px, 100%);
-  margin: 30px auto 0;
+  width: min(var(--content-max), 100%);
+  margin: 34px auto 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
@@ -431,7 +446,8 @@ figcaption {
   display: grid;
   grid-template-columns: minmax(420px, 0.95fr) minmax(480px, 1.05fr);
   gap: 34px;
-  align-items: center;
+  align-items: start;
+  width: min(1240px, 100%);
 }
 
 .result-table-wrap {
@@ -505,19 +521,55 @@ figcaption {
   color: var(--teal-dark);
 }
 
-.visual-pair,
+.qualitative-showcase,
 .dynamics-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 38px;
+  gap: 48px;
   margin-top: 36px;
 }
 
-.visual-pair img,
+.qualitative-showcase {
+  width: min(1180px, 100%);
+}
+
+.media-group {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+}
+
+.media-intro {
+  max-width: 1040px;
+}
+
+.media-intro .eyebrow {
+  margin-bottom: 8px;
+}
+
+.media-intro h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.15;
+}
+
+.media-intro p:not(.eyebrow) {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+.media-figure img,
 .dynamics-grid img {
   height: auto;
   padding: 0;
   object-fit: contain;
+}
+
+.media-video {
+  width: min(var(--demo-max), 100%);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .embedded-demo {
@@ -525,6 +577,20 @@ figcaption {
   object-fit: contain;
   padding: 0;
   background: #000000;
+}
+
+.libero-demo {
+  aspect-ratio: 3 / 2;
+}
+
+.real-world-video {
+  width: min(var(--demo-max), 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dynamics-grid {
+  gap: 42px;
 }
 
 .resource-grid {
@@ -598,7 +664,11 @@ figcaption {
     font-size: 3rem;
   }
 
-  .metric-band,
+  .metric-band {
+    padding: 0 24px;
+  }
+
+  .metric-grid,
   .intro-grid,
   .benchmark-grid,
   .resource-grid {
@@ -606,7 +676,7 @@ figcaption {
   }
 
   .result-layout,
-  .visual-pair,
+  .qualitative-showcase,
   .dynamics-grid {
     grid-template-columns: 1fr;
   }
@@ -663,22 +733,26 @@ figcaption {
     font-size: 0.92rem;
   }
 
-  .metric-band,
+  .metric-band {
+    padding: 0 18px;
+  }
+
+  .metric-grid,
   .intro-grid,
   .comparison-panel,
   .result-layout,
   .benchmark-grid,
-  .visual-pair,
+  .qualitative-showcase,
   .dynamics-grid,
   .resource-grid {
     grid-template-columns: 1fr;
   }
 
-  .metric-band div {
+  .metric-grid div {
     padding: 22px 20px;
   }
 
-  .metric-band strong {
+  .metric-grid strong {
     font-size: 1.8rem;
   }
 
@@ -705,25 +779,25 @@ figcaption {
   }
 
   .wide-figure,
-  .visual-pair figure,
+  .media-figure,
   .dynamics-grid figure {
     overflow-x: auto;
     padding-bottom: 4px;
   }
 
   .wide-figure img,
-  .visual-pair img,
+  .media-figure img,
   .dynamics-grid img,
   .embedded-demo {
     max-width: none;
   }
 
   .wide-figure img,
-  .visual-pair figure:first-child img {
+  .libero-group .media-figure:first-of-type img {
     width: 720px;
   }
 
-  .visual-pair figure:last-child img {
+  .real-world-strip img {
     width: 920px;
   }
 
