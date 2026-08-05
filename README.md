@@ -326,7 +326,8 @@ hf download jialei02/lawam_pretrain \
 All training is launched through `train_lawam.sh` for a single node
 or `train_lawam_distributed.sh` for multi-node jobs. Extra arguments
 are forwarded to OmegaConf, so config fields can be overridden with
-`--a.b.c value`.
+`--a.b.c=value`. Use the `=` form so values are not mistaken for a positional
+config path by the launch scripts.
 
 ### LIBERO SFT
 
@@ -364,12 +365,21 @@ dataset/
 
 #### 2. Launch LIBERO SFT
 
+LIBERO SFT uses 8 GPUs with a global batch size of 256. The effective global
+batch size is
+`per_device_batch_size * total_num_gpus * gradient_accumulation_steps`.
+The provided config uses `per_device_batch_size: 32` and
+`gradient_accumulation_steps: 1`, so `32 * 8 * 1 = 256`. If you change the GPU
+count or per-device batch size, adjust gradient accumulation to preserve a
+global batch size of 256. The launcher automatically starts one process per
+GPU visible to PyTorch, so run this command in a job with 8 visible GPUs.
+
 ```bash
 cd LaWAM
 conda activate lawam
 
 bash train_lawam.sh \
-  --run_id libero_sft_from_pretrain
+  --run_id=libero_sft_from_pretrain
 ```
 
 The output checkpoint is written under:
@@ -426,7 +436,7 @@ Important RoboTwin SFT settings:
   `trainer.gradient_accumulation_steps` to keep the global batch size at 1024.
 - For debugging, a 30k-step RoboTwin SFT run is usually enough to reach around
   80% of the reported performance. You can set
-  `--trainer.max_train_steps 30000` for a shorter debug run.
+  `--trainer.max_train_steps=30000` for a shorter debug run.
 
 ```bash
 cd LaWAM
@@ -434,7 +444,7 @@ conda activate lawam
 
 bash train_lawam.sh \
   starVLA/config/training/train_robotwin.yaml \
-  --run_id robotwin_sft_from_pretrain
+  --run_id=robotwin_sft_from_pretrain
 ```
 
 The output checkpoint is written under:
@@ -456,11 +466,22 @@ Run the same command on every node and set `NODE_RANK` accordingly.
 
 ## Checkpoint Notes
 
-Training checkpoints are regular PyTorch `.pt` files that include the model
-state and the merged training config. Evaluation scripts use the checkpoint
-config to recover dataset statistics, action normalization, Qwen3-VL source,
-and LAM source. When moving checkpoints across machines, make sure these paths
-are valid in the new environment.
+Training checkpoint `.pt` files contain only the model state dict. The merged
+training config and dataset normalization statistics are saved as sidecar files
+in the run directory:
+
+```text
+<run_dir>/
+  config.yaml
+  dataset_statistics.json
+  final_model/pytorch_model.pt
+```
+
+Evaluation scripts load `config.yaml` and `dataset_statistics.json` from the
+run directory to recover action normalization, the Qwen3-VL source, and the LAM
+source. When moving a checkpoint across machines, copy the complete run
+directory and make sure the paths recorded in `config.yaml` are valid in the
+new environment.
 
 - LIBERO checkpoints should use `datasets.vla_data.data_mix: libero`.
 - RoboTwin EEF checkpoints should use `datasets.vla_data.data_mix:
