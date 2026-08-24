@@ -1,0 +1,58 @@
+dim: 1024
+num_heads: 16
+ffn_expansion_factor: 4
+enc_layers: 24
+codebook_size: 32
+code_dim: 32
+max_state_dim: 32
+num_frames: 2
+num_queries: 1
+vq_kwargs:
+  layer_norm: true
+dec_layers: 12
+dropout: 0.0
+lambda_aux: 1.0
+loss_type: smooth_l1
+state_loss_type: l2
+project: lam
+task_name: vggt_vae_libero
+wandb_offline: true
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 0.0003
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+    weight_decay: 0.01
+    amsgrad: false
+    maximize: false
+    foreach: null
+    capturable: false
+    differentiable: false
+    fused: null
+weight_decay: 0.01
+exclude_bias_norm_from_wd: true
+make_data_pair: false
+output_dir: output_pairs
+vision_model_id: /home/ma-user/work/dataset/xxd-dataset/dataset_yhw/StarVLA/playground/Pretrained_models/VGGT-1B
+warmup_steps: 10000
+lambda_diversity: 0.0
+norm_latents: true
+norm_latents_type: ln
+disable_vq: false
+vq_type: vae
+enc_add_state: false
+enc_modal_mask: true
+latent_layer_to_use: -2
+multi_input: false
+num_embodiments: 32
+image_hw:
+- 256
+- 256
+patch_size: 16
+image_aug: true
+dual_view_aug: true
+decoder_last_ln: true
+_instantiator: lightning.pytorch.cli.instantiate_module

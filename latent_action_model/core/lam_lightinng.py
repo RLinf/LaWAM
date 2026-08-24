@@ -898,6 +898,34 @@ class VJEPA_LAM(LightningModule):
         plt.savefig(f"{filename}.png", bbox_inches="tight", pad_inches=0.0)
         plt.close()
 
+    def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
+        """Drop the frozen visual encoder from the checkpoint.
+
+        `lam.vision_encoder.*` is never trained and is re-loaded from
+        `vision_model_id` on every `LatentLAMModel.__init__`, so persisting it
+        only wastes disk. With VGGT-1B that is 909 M params -> ~3.6 GB per
+        checkpoint file.
+        """
+        state_dict = checkpoint.get("state_dict")
+        if not state_dict:
+            return
+        for key in [k for k in state_dict if k.startswith("lam.vision_encoder.")]:
+            del state_dict[key]
+
+    def on_load_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
+        """Re-inject the frozen encoder weights stripped by `on_save_checkpoint`.
+
+        They are already loaded in `__init__`, so copying them back from the live
+        module lets Lightning keep loading strictly instead of silencing genuinely
+        missing trained weights.
+        """
+        state_dict = checkpoint.get("state_dict")
+        if state_dict is None:
+            return
+        for key, value in self.state_dict().items():
+            if key.startswith("lam.vision_encoder.") and key not in state_dict:
+                state_dict[key] = value
+
     def configure_optimizers(self) -> Any:
         if self.exclude_bias_norm_from_wd:
             param_groups, decay_names, no_decay_names = self._build_optimizer_param_groups()

@@ -1,0 +1,52 @@
+{
+  "source_checkpoint": "epoch=39.ckpt",
+  "epoch": 39,
+  "global_step": 42720,
+  "dtype": "float32",
+  "vision_encoder": "VGGT-1B (frozen, NOT included -- fetch from facebook/VGGT-1B)",
+  "files": {
+    "lawm_decoder.safetensors": {
+      "prefix": "decoder.",
+      "tensors": 128,
+      "params": 230912000,
+      "params_readable": "230.9M",
+      "bytes": 923662160,
+      "size_readable": "923.7 MB",
+      "sha256": "595c71b224e2379ae8869d3f6e16a095ba929c266f8de76382487cc3d3944f06"
+    },
+    "lam_idm_encoder.safetensors": {
+      "prefix": "encoder.",
+      "tensors": 305,
+      "params": 310743072,
+      "params_readable": "310.7M",
+      "bytes": 1243007152,
+      "size_readable": "1243.0 MB",
+      "sha256": "87e5ec760ebc76869aefaeb005356eea2e82cdd50affbb8de1e49ddc420df6d8"
+    },
+    "state_head.safetensors": {
+      "prefix": "state_decoder.",
+      "tensors": 10,
+      "params": 102893568,
+      "params_readable": "102.9M",
+      "bytes": 411575432,
+      "size_readable": "411.6 MB",
+      "sha256": "e7cef6f9158117104f17bd0f7c07a4d338db2de57876eb923416508d534f66f5"
+    },
+    "misc.safetensors": {
+      "keys": [
+        "vq.logvar.bias",
+        "vq.logvar.weight",
+        "vq.mu.bias",
+        "vq.mu.weight",
+        "vq.pre_norm.bias",
+        "vq.pre_norm.weight"
+      ],
+      "bytes": 9208,
+      "sha256": "ca3481fb51ea85a015325fb049ea99f3917bb4b76bc7f1d7ea54f4fe7a2fda9d"
+    }
+  },
+  "total_bytes": 2578253952,
+  "total_readable": "2.58 GB",
+  "original_checkpoint_bytes": 7735296365,
+  "shrink_factor": 3.0
+}

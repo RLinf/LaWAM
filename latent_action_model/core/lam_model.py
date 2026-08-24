@@ -596,6 +596,10 @@ def load_latent_action_model(ckpt_path, yaml_path):
     ckpt_keys = set(new_ckpt.keys())
 
     missing_keys = sorted(list(model_keys - ckpt_keys))
+    # `VJEPA_LAM.on_save_checkpoint` strips the frozen visual encoder, which
+    # `LatentLAMModel.__init__` has already rebuilt from `vision_model_id`.
+    # Its absence is expected, not an error.
+    missing_keys = [k for k in missing_keys if not k.startswith("vision_encoder.")]
     unexpected_keys = sorted(list(ckpt_keys - model_keys))
     shape_mismatches = []
     for k in sorted(model_keys & ckpt_keys):
@@ -614,6 +618,12 @@ def load_latent_action_model(ckpt_path, yaml_path):
             error_lines.append(f"Keys with shape mismatches ({len(shape_mismatches)}):")
             error_lines += [f"  - {k}: model{ms} vs checkpoint{cs}" for k, ms, cs in shape_mismatches]
         raise RuntimeError("\n".join(error_lines))
+
+    # Keep strict=True meaningful for the trained weights by filling the stripped
+    # encoder entries from the freshly built (already pretrained) module.
+    for key, value in model_state.items():
+        if key.startswith("vision_encoder.") and key not in new_ckpt:
+            new_ckpt[key] = value
 
     latent_action_model.load_state_dict(new_ckpt, strict=True)
     for p in latent_action_model.parameters():

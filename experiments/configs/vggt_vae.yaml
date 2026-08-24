@@ -1,0 +1,143 @@
+# LaWAM Stage 1 with the frozen visual encoder swapped DINOv3 -> VGGT-1B.
+#
+# Derived from `dino_large_vae.yaml` (the config behind the released
+# `jialei02/lawam_lam` checkpoint). Everything not listed below is byte-identical
+# to that file; the deltas are marked `# [VGGT]`.
+#
+# Why the model stays patch-16 even though VGGT is patch-14: VGGT runs internally
+# at 518px -> a 37x37 grid, and `VGGTEncoder` average-pools that down to 16x16 =
+# 256 tokens. The LAM decoder therefore still sees the 256-token / patch-16
+# layout that `LAM_PATCH_SIZE` hard-codes, and no downstream code changes.
+#
+# NOTE: this invalidates the released Stage-1 checkpoint. The encoder feature
+# space is different (2048-d VGGT vs 768/1024-d DINOv3), so Stage 1 must be
+# retrained from scratch.
+
+seed_everything: 42
+
+
+model:
+  # [VGGT] Frozen VGGT-1B aggregator. The `build_vision_encoder` factory
+  # dispatches on the substring "vggt" in this string, so keep it in the path.
+  # Accepts a directory (model.pt / model.safetensors), a file, or a hub id.
+  vision_model_id: "/home/ma-user/work/dataset/xxd-dataset/dataset_yhw/StarVLA/playground/Pretrained_models/VGGT-1B"
+  dim: 1024
+  enc_layers: 24
+  ffn_expansion_factor: 4
+  num_heads: 16
+  # Must match data.max_state_dim for mixed datasets with padded states.
+  max_state_dim: 32
+  num_embodiments: 32
+  codebook_size: 32
+  code_dim: 32
+  num_queries: 1
+  num_frames: 2
+  image_hw: [256, 256]
+  patch_size: 16
+  image_aug: true
+  dual_view_aug: true
+  dec_layers: 12
+  dropout: 0.0
+  warmup_steps: 10000
+  enc_add_state: false
+  enc_modal_mask: true
+  lambda_aux: 1.0
+  loss_type: "smooth_l1"
+  state_loss_type: "l2"
+
+  # [VGGT] Unchanged value, but different meaning: the VGGT aggregator only
+  # caches blocks {4, 11, 17, 23} and returns `None` for the rest, so
+  # `VGGTEncoder` indexes the compacted cached list. -2 -> block 17.
+  latent_layer_to_use: -2
+  multi_input: false
+  # LayerNorm on the encoder features is doing real work here: VGGT has no final
+  # LayerNorm (the aggregator returns the raw pre-norm residual stream) and its
+  # per-channel std spans ~78x. DINOv3 did not have this problem.
+  norm_latents: true
+  norm_latents_type: "ln"
+  lambda_diversity: 0.0
+  vq_type: "vae"
+  vq_kwargs:
+    layer_norm: true
+
+  project: lam
+  task_name: vggt_vae_libero  # [VGGT]
+
+  wandb_offline: true
+
+  optimizer:
+    class_path: torch.optim.AdamW
+    init_args:
+      lr: 3e-4
+      weight_decay: 1e-2
+  exclude_bias_norm_from_wd: true
+
+  make_data_pair: false
+  output_dir: output_pairs
+
+data:
+  # LeRobotDataModule (latent_action_model/data_loader/lerobot_datamodule.py)
+  data_root_dir: "/home/ma-user/work/lam_datasets"  # [VGGT] local path only
+  data_mix: "libero"  # official mix -> jialei02/libero_merged_no_noops_20hz (LeRobot v3.0)
+  video_backend: "pyav"  # LIBERO videos are AV1; decord cannot decode them, pyav can.
+  num_frames: 2
+  image_hw: [256, 256]
+  frame_dt_sec: 1.6
+  human_frame_dt_sec: 0.4
+  # [VGGT] Halved from 64. Each sample costs 4 VGGT-1B forwards (enc t/T + dec
+  # t/T) at 518px. Measured on one A100-80G: 4.5 s/step, 43 GB peak, i.e. VGGT
+  # is ~28 img/s and dominates the step. bs=64 would be ~9 s/step and ~80 GB.
+  batch_size: 32
+  num_workers: 8
+  prefetch_factor: 4
+  pin_memory: true
+  persistent_workers: false
+  # Let fast workers return first; this reduces periodic dataloader stalls.
+  in_order: false
+  debug_repeat_batch: false
+  max_state_dim: 32
+
+trainer:
+  max_epochs: 40  # [VGGT] LIBERO is ~700x smaller than the paper's mixture
+  accelerator: gpu
+  devices: auto
+  # strategy: ddp_find_unused_parameters_true
+  strategy: ddp_find_unused_parameters_false
+  accumulate_grad_batches: 1
+  precision: bf16-mixed            #bf16-mixed 32-true
+  log_every_n_steps: 100
+  gradient_clip_val: 1.0
+  # [VGGT] Once per epoch. An absolute step count would have to stay below the
+  # per-epoch batch count, which changes with the device count (8543 batches on
+  # 1 GPU, 1068 on 8) — Lightning raises if it doesn't.
+  val_check_interval: 1.0
+  num_sanity_val_steps: 0
+  limit_val_batches: 50
+
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        # [VGGT] Explicit dirpath. The default (trainer.log_dir, i.e. inside the
+        # repo) lands on the xxd-dataset volume, which is full and is a
+        # root-squash NFS that rejects rename() — checkpointing would fail there.
+        dirpath: /home/ma-user/work/lam_runs/vggt_vae_libero/checkpoints
+        verbose: true
+        save_last: true
+        save_top_k: -1
+        # Save only at train epoch end to avoid DDP checkpoint broadcasts after mid-epoch validation.
+        save_on_train_epoch_end: true
+        # [VGGT] Every 4th epoch instead of every epoch. Even with the frozen
+        # encoder stripped (VJEPA_LAM.on_save_checkpoint) a checkpoint is ~7.5 GB
+        # (644 M trainable + AdamW moments); 40 epochs would otherwise be 300 GB.
+        # `save_last` still refreshes last.ckpt every epoch, so resume granularity
+        # stays at one epoch.
+        every_n_epochs: 4
+        filename: "{epoch}"
+
+    - class_path: latent_action_model.core.lam_lightinng.SaveConfigToCheckpointCallback
+
+  logger:
+    - class_path: lightning.pytorch.loggers.TensorBoardLogger
+      init_args:
+        save_dir: /home/ma-user/work/lam_runs  # [VGGT] same reason as dirpath
+        name: vggt_vae_libero

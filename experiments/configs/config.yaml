@@ -1,0 +1,153 @@
+# lightning.pytorch==2.4.0
+seed_everything: 42
+trainer:
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_false
+  devices: auto
+  num_nodes: 1
+  precision: bf16-mixed
+  logger:
+  - class_path: lightning.pytorch.loggers.TensorBoardLogger
+    init_args:
+      save_dir: /home/ma-user/work/lam_runs
+      name: vggt_vae_libero
+      version: null
+      log_graph: false
+      default_hp_metric: true
+      prefix: ''
+      sub_dir: null
+      comment: ''
+      purge_step: null
+      max_queue: 10
+      flush_secs: 120
+      filename_suffix: ''
+  callbacks:
+  - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+    init_args:
+      dirpath: /home/ma-user/work/lam_runs/vggt_vae_libero/checkpoints
+      filename: '{epoch}'
+      monitor: null
+      verbose: true
+      save_last: true
+      save_top_k: -1
+      save_weights_only: false
+      mode: min
+      auto_insert_metric_name: true
+      every_n_train_steps: null
+      train_time_interval: null
+      every_n_epochs: 4
+      save_on_train_epoch_end: true
+      enable_version_counter: true
+  - class_path: latent_action_model.core.lam_lightinng.SaveConfigToCheckpointCallback
+    init_args:
+      config_path: ''
+      filename: ''
+  fast_dev_run: false
+  max_epochs: 40
+  min_epochs: null
+  max_steps: -1
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: 50
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: 1.0
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 0
+  log_every_n_steps: 100
+  enable_checkpointing: null
+  enable_progress_bar: null
+  enable_model_summary: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: null
+  deterministic: null
+  benchmark: null
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+model:
+  dim: 1024
+  num_heads: 16
+  ffn_expansion_factor: 4
+  enc_layers: 24
+  codebook_size: 32
+  code_dim: 32
+  max_state_dim: 32
+  num_frames: 2
+  num_queries: 1
+  vq_kwargs:
+    layer_norm: true
+  dec_layers: 12
+  dropout: 0.0
+  lambda_aux: 1.0
+  loss_type: smooth_l1
+  state_loss_type: l2
+  project: lam
+  task_name: vggt_vae_libero
+  wandb_offline: true
+  optimizer:
+    class_path: torch.optim.AdamW
+    init_args:
+      lr: 0.0003
+      betas:
+      - 0.9
+      - 0.999
+      eps: 1.0e-08
+      weight_decay: 0.01
+      amsgrad: false
+      maximize: false
+      foreach: null
+      capturable: false
+      differentiable: false
+      fused: null
+  weight_decay: 0.01
+  exclude_bias_norm_from_wd: true
+  make_data_pair: false
+  output_dir: output_pairs
+  vision_model_id: /home/ma-user/work/dataset/xxd-dataset/dataset_yhw/StarVLA/playground/Pretrained_models/VGGT-1B
+  warmup_steps: 10000
+  lambda_diversity: 0.0
+  norm_latents: true
+  norm_latents_type: ln
+  disable_vq: false
+  vq_type: vae
+  enc_add_state: false
+  enc_modal_mask: true
+  latent_layer_to_use: -2
+  multi_input: false
+  num_embodiments: 32
+  image_hw:
+  - 256
+  - 256
+  patch_size: 16
+  image_aug: true
+  dual_view_aug: true
+  decoder_last_ln: true
+data:
+  data_root_dir: /home/ma-user/work/lam_datasets
+  data_mix: libero
+  num_frames: 2
+  video_backend: pyav
+  preferred_video_key: null
+  state_keys: null
+  frame_dt_sec: 1.6
+  human_frame_dt_sec: 0.4
+  batch_size: 32
+  num_workers: 8
+  prefetch_factor: 4
+  in_order: false
+  pin_memory: true
+  persistent_workers: false
+  debug_repeat_batch: false
+  val_tail_ratio: 0.001
+  max_state_dim: 32
+ckpt_path: null

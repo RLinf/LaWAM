@@ -37,7 +37,7 @@ LOG_FILE="${LOG_DIR}/train_logs.log"
 
 CKPT_PATH="${CKPT_PATH:-}"
 
-export WANDB_API_KEY="8d44fb58134f3f96e048d943a2543c51ff4f1d09"
+export WANDB_API_KEY="${WANDB_API_KEY:?set this yourself, or use WANDB_MODE=disabled}"
 export WANDB_DIR="${REPO_ROOT_DIR}/latent_action_model"
 
 # export WANDB_MODE="offline"
