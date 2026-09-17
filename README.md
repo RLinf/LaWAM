@@ -15,6 +15,11 @@ a **La**tent **W**orld **A**ction **M**odel for robot policies. LaWAM predicts
 future observation features in a frozen visual feature space and injects them as
 latent visual subgoals for action generation.
 
+## News
+
+- **[September 2026]** 🤗 LaWAM has been officially integrated into [LeRobot](https://github.com/huggingface/lerobot/blob/main/docs/source/lawam.mdx)!
+- **[September 2026]** 🎉 LaWAM has been accepted to **CoRL 2026** and has received **23 citations** within three months of its release ([Semantic Scholar](https://www.semanticscholar.org/paper/LaWAM%3A-Latent-World-Action-Models-for-Efficient-Chen-Wang/996f843abe83a075ec19dd66c7f15fe8e073380e))!
+
 ## Paper Overview
 
 LaWAM introduces a latent world-model interface for VLA policies. The overview
@@ -27,6 +32,7 @@ LaWAM policy training with latent visual subgoals.
 
 ## Index
 
+- [News](#news)
 - [Paper Overview](#paper-overview)
 - [File Structure](#file-structure)
 - [Environment Setup](#environment-setup)
