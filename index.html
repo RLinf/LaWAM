@@ -8,7 +8,7 @@
       name="description"
       content="LaWAM exposes predictive dynamics to robot policies through compact latent visual subgoals instead of reconstructed future video."
     >
-    <link rel="stylesheet" href="styles.css?v=20260623">
+    <link rel="stylesheet" href="styles.css?v=20261010">
   </head>
   <body>
     <header class="site-header">
@@ -259,15 +259,22 @@
           </article>
           <article class="benchmark-card">
             <h3>Real-World Transfer</h3>
-            <p>Best average real-world success across rigid-object, articulated-object, and deformable-object tasks,
-              ranking first on pick-and-place, drawer opening, and towel folding. The real-world protocol uses a
-              Franka arm for the first two tasks, a Quanta X1 bimanual robot for towel folding, and 30 trials per task.</p>
-            <div class="mini-bars" aria-label="Real world success rates">
-              <div><span>Average</span><strong>90.0</strong></div>
-              <div><span>Pick-place</span><strong>93.3</strong></div>
-              <div><span>Drawer</span><strong>86.7</strong></div>
-              <div><span>Towel</span><strong>90.0</strong></div>
+            <p>LaWAM achieves the highest success rate among evaluated methods across rigid-object, articulated-object,
+              deformable-object, and eight-stage table-clearing tasks, including evaluations under lighting perturbations.</p>
+            <h4 class="benchmark-subheading">30 trials per task · Success rate (%)</h4>
+            <div class="mini-bars" aria-label="Real-world success rates over 30 trials per task">
+              <div><span>Pick-and-Place</span><strong>93.3</strong></div>
+              <div><span>Open Drawer</span><strong>86.7</strong></div>
+              <div><span>Fold Towel</span><strong>90.0</strong></div>
             </div>
+            <h4 class="benchmark-subheading">50 trials per condition · Success rate (%)</h4>
+            <div class="mini-bars" aria-label="Real-world success rates over 50 trials per condition">
+              <div><span>Clean Table</span><strong>42.0</strong></div>
+              <div><span>Clean Table–Light</span><strong>24.0</strong></div>
+              <div><span>Fold Towel–Light</span><strong>68.0</strong></div>
+            </div>
+            <p class="benchmark-note">Light adds red, green, or purple illumination at evaluation. For each method
+              and task, both lighting conditions share the same checkpoint, trained with color augmentation.</p>
           </article>
         </div>
 
@@ -309,13 +316,15 @@
               <p class="eyebrow">Physical robots</p>
               <h3>Representative real-world rollouts.</h3>
               <p>
-                Pick-and-place and drawer opening run on a Franka arm, while towel folding runs on a Quanta X1
-                bimanual robot, covering rigid-object, articulated-object, and deformable-object manipulation.
+                Pick-and-place and drawer opening run on a Franka arm, while towel folding and Clean Table use a
+                Quanta X1 bimanual robot. Clean Table requires completing all eight subtasks and uses 302
+                teleoperated demonstrations for fine-tuning.
               </p>
             </div>
             <figure class="media-figure real-world-strip">
-              <img src="assets/figures/real_world_rollouts.png" alt="Representative real-world robot rollouts.">
-              <figcaption>Representative real-world rollouts across two robot platforms.</figcaption>
+              <img src="assets/figures/real_world_rollouts.png?v=20261010" alt="Pick-and-Place and Drawer Opening on Franka; Towel Folding and eight-stage Clean Table on Quanta X1.">
+              <figcaption>Real-world manipulation on two robot platforms. Frames progress from left to right,
+                with Clean Table continuing on the next row through eight object-level subtasks.</figcaption>
             </figure>
             <figure class="media-figure media-video real-world-video">
               <video
@@ -325,14 +334,14 @@
                 loop
                 playsinline
                 preload="metadata"
-                poster="assets/frames/real_world_video.jpg"
-                aria-label="Real-world LaWAM inference video with RGB execution, subgoal heatmaps, and latent PCA."
+                poster="assets/frames/real_world_video.jpg?v=20261010"
+                aria-label="Four-row LaWAM visualization: pick-and-place, drawer opening, towel folding, and Clean Table demonstration replay."
               >
-                <source src="assets/real_world_inference.mp4" type="video/mp4">
+                <source src="assets/real_world_inference.mp4?v=20261010" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
-              <figcaption>Real-world chunk-level visualization with RGB observations, future-similarity heatmaps, and
-                LaWM subgoal PCA during policy execution.</figcaption>
+              <figcaption>RGB observations, predicted future-similarity heatmaps, and LaWM subgoal PCA. The shorter
+                sequences loop while Clean Table plays in full.</figcaption>
             </figure>
           </div>
         </div>

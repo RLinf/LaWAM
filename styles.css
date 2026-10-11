@@ -521,6 +521,21 @@ figcaption {
   color: var(--teal-dark);
 }
 
+.benchmark-subheading {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.benchmark-subheading + .mini-bars {
+  margin-top: 10px;
+}
+
+.benchmark-card .benchmark-note {
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+}
+
 .qualitative-showcase,
 .dynamics-grid {
   display: grid;
@@ -587,6 +602,10 @@ figcaption {
   width: min(var(--demo-max), 100%);
   margin-left: auto;
   margin-right: auto;
+}
+
+.real-world-video .embedded-demo {
+  aspect-ratio: 1 / 1;
 }
 
 .dynamics-grid {
